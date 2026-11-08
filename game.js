@@ -21,10 +21,10 @@ body:[['Newsworthy Event','Angela, the personal confidential secretary to Mayor 
 ['Background Events & Sources','The internal financial audit team moved quickly to examine Angela\'s personal bank account records and asset declarations. Based on strict digital banking security systems, administrative staff members operating at the secretarial level have proven to possess zero authorization, clearance, or technical access to disburse municipal budget funds.','Angela explained during an interrogation session that her entire wealth originated purely from a substantial family inheritance left by her late mother, who managed a successful textile business prior to passing away last year. In an exclusive interview with reporters, Angela asserted, "My luxury lifestyle is funded entirely by my family\'s legal estate, and I have never touched government money even a single bit."']],
 task:'What evidence clears Angela from being the primary suspect of disbursing the city funds?',must:[/authori|access|clearance|permission/i]},
 3:{paper:'THE METRO CHRONICLE',sub:'Business & Financial Investigation Desk',bg:'bg_stage3_inferno',place:'Inferno Coffee Shop',
-head:'Sky-High Revenue at Newly Opened Inferno Coffee Raises Auditor\'s Suspicions',
-body:[['Newsworthy Event','Inferno Coffee, a newly opened upscale cafe owned by Mr. Valir located in the central commercial district, suddenly recorded a phenomenal weekly turnover reaching three hundred and fifty million rupiah\u2014a financial figure considered utterly absurd for a newly established culinary business. State tax auditors are now actively suspecting the venue of potentially serving as a front for illegal money laundering operations.'],
-['Background Events & Sources','Tax enforcement officers regularly visit the cafe to inspect ledger transaction books and digital receipts on a periodic basis. On the other hand, Mr. Valir argues through his legal counsel that his extraordinary business profit surge is purely driven by unique proprietary coffee blends and a massive, fiercely loyal customer base.','When investigative journalists questioned him regarding the legal origin of his financial transactions, Mr. Valir claimed that all of his business earnings originated from his extensive network of private restaurants operating overseas. Valir conveyed, "The profits of this cafe are generated completely legally, and no one has the ethical right to link my private business to the missing city treasury case."']],
-task:'Why does the tax auditor suspect Mr. Valir\'s cafe of money laundering? Does the article explicitly tie his revenue to the missing Rp 50 billion city treasury?',must:[/revenue|turnover|profit|absurd|350|new/i,/\bno\b|\bnot\b|n't|never|neither/i]},
+head:'Auditors Trace Inferno Coffee\'s Sky-High Revenue to Owner\'s Secret Casino, Not City Funds',
+body:[['Newsworthy Event','Inferno Coffee, a newly opened upscale cafe owned by Mr. Valir in the central commercial district, recorded a phenomenal weekly turnover of three hundred and fifty million rupiah\u2014a figure considered utterly absurd for a new culinary business. After a week of inspection, state tax auditors announced that the cafe was a front for illegal money laundering, used to hide the profits of a secret restaurant and casino that Mr. Valir also owns.'],
+['Background Events & Sources','Tax enforcement officers visited the cafe regularly to inspect ledger transaction books and digital receipts. At first, Mr. Valir argued through his legal counsel that his extraordinary profit surge was purely driven by unique proprietary coffee blends and a massive, fiercely loyal customer base. However, the auditors discovered that much of the cash recorded as coffee sales had been carried in from an unlicensed restaurant with a hidden gambling room on the edge of the city.','Confronted with the audit results, Mr. Valir admitted that all of his earnings came from his restaurant and casino. Valir conveyed, "I hid the profits of my secret restaurant and casino inside my cafe, and I will face the law. But I took nothing from the city treasury." The auditors stated that they found no transaction linking Mr. Valir\'s businesses to the missing fifty billion rupiah, and police confirmed that his illegal gambling and money laundering will be handled as a separate case.']],
+task:'Where did the money of Inferno Coffee really come from, and does the article link it to the missing Rp 50 billion city treasury money?',must:[/restaurant|casino|gambl|secret|hidden|launder/i,/\bno\b|\bnot\b|n't|never|nothing|neither/i]},
 4:{paper:'AMATS EXPRESS',sub:'Amats City Premier Reporting',bg:'bg_stage4_archive',place:'Political Statements & Archive',
 head:'Opposition Leader Blames Mayor as Damaged Road Projects Spark Public Rage',
 body:[['Newsworthy Event','Chronic delays in road infrastructure repair projects across various corners of Amats city have triggered intense public fury and severe traffic congestion daily. Responding to this escalating crisis, opposition political figure Mr. Alpha openly accused Mayor Johnson of deliberately neglecting public facilities and infrastructure maintenance for personal financial gain.'],
@@ -50,8 +50,8 @@ cafe:{x:12,y:44,icon:'\u2615',name:'Dewi (Barista, Inferno Coffee)',place:'Centr
  n:{start:menu("Welcome to Inferno Coffee! Oh, are you the detective everyone is talking about? Can I get you something, or can I help you with something else?",['How is business here?','Who takes care of the money?','Does Mr. Valir ever talk about the city?']),
  m:menu("Of course! Anything else I can help you with, Detective?",['How is business here?','Who takes care of the money?','Does Mr. Valir ever talk about the city?']),
  a:ans("The app says we are fully booked every day. But look around, half the tables are empty. Mr. Valir says it is the new coffee blends. I just pour the coffee."),
- b:ans("Mr. Valir handles every receipt himself. He does not let anyone else touch the ledger. The tax officers visit quite often, though."),
- c:ans("Never the city. He talks about his restaurants out of town, and about his 'investors'. I do not ask questions. I like my job.")}},
+ b:ans("Mr. Valir handles every receipt himself. He does not let anyone else touch the ledger. And some nights, guests walk in through the back door and never order a single coffee. The tax officers visit quite often, though."),
+ c:ans("Never the city. He talks about his restaurants out of town, his 'investors' and his 'private club'. I do not ask questions. I like my job.")}},
 store:{x:38,y:82,icon:'\uD83C\uDFEA',name:'Pak Jaya (Small Store Owner)',place:'Market Lane',img:'npc_store_owner',
  n:{start:menu("Oh! Careful, careful, mind the crates! ...Eh? You are the detective? Well, what do you need? Make it quick, I have customers.",['Who shops here usually?','Have you seen any material deliveries?','Anything odd about the road projects?']),
  m:menu("Hm? Still here? Fine, one more question. What is it?",['Who shops here usually?','Have you seen any material deliveries?','Anything odd about the road projects?']),
@@ -70,6 +70,7 @@ const PINS={1:[48,52],2:[30,30],3:[62,38],4:[75,22],5:[85,55]};
 // ---------- state & logging ----------
 const $=s=>document.querySelector(s), app=$('#app');
 const S=JSON.parse(localStorage.getItem('amats')||'{}'); S.sid=S.sid||Math.random().toString(36).slice(2,8).toUpperCase();
+S.seen=S.seen||{};S.heard=S.heard||{};S.lbn=S.lbn||{}; // seen: stages read, heard: witness answers, lbn: notes already viewed per character
 const save=()=>localStorage.setItem('amats',JSON.stringify(S));
 const readQ=()=>JSON.parse(localStorage.getItem('amats_q')||'[]'), writeQ=q=>localStorage.setItem('amats_q',JSON.stringify(q));
 let busy=false;
@@ -91,18 +92,38 @@ function gate(cb){
  $('#go').onclick=go;$('#nm').onkeydown=e=>{if(e.key==='Enter')go();};
 }
 
+// ---------- case log book ----------
+const nm=c=>CAST[c]||LOGBOOK[c].name;
+const heardSrc=s=>/^s\d$/.test(s)?!!(S.seen[s]||S['c'+s[1]]):!!S.heard[s];
+const lbNotes=c=>LOGBOOK[c].notes.filter(x=>heardSrc(x.s));
+const srcName=s=>SRC[s]||SRC[s.split('/')[0]]||s;
+const lbHTML=()=>{
+ const leg=`<p class="lbl"><span class="tg tg-F">FACT</span> can be checked &nbsp;<span class="tg tg-O">OPINION</span> what someone thinks &nbsp;<span class="tg tg-C">CLAIM</span> what someone says, not proven</p>`;
+ return leg+Object.keys(LOGBOOK).map(c=>{
+  const L=LOGBOOK[c],ns=lbNotes(c);
+  if(!ns.length)return L.hide?'':`<div class="lbc lock"><span class="lbp"><img src="assets/ui_file_locked.png" alt="" onerror="this.style.visibility='hidden'"></span><span class="lbi"><b>???</b><small>Not met yet. Read more stations and talk to witnesses.</small></span></div>`;
+  const open=hub.open===c,nw=ns.length-(S.lbn[c]||0);
+  return `<div class="lbc${open?' open':''}"><button class="lbh" data-c="${c}" aria-expanded="${open}"><span class="lbp"><img src="assets/${L.img||'char_'+c}.png" alt="" onerror="this.style.visibility='hidden'"></span><span class="lbi"><b>${nm(c)}</b><small>${L.role}</small><small>${ns.length} note${ns.length>1?'s':''}${nw>0?` <span class="nw">+${nw} new</span>`:''}</small></span><span class="lbx">${open?'\u25B2':'\u25BC'}</span></button>${open?`<ul class="lbn">${ns.map(n=>`<li><span class="tg tg-${n.k}">${TAG[n.k]}</span> ${n.t}<small>${srcName(n.s)}</small></li>`).join('')}</ul>`:''}</div>`;}).join('');
+};
+
 // ---------- hub + npc ----------
 function hub(){
- log('hub_view');
+ log('hub_view');hub.tab=hub.tab||'board';
  const draw=st=>{
   const sl=st.phase==='intro'&&st.step>0?INTRO[Math.min(st.step,INTRO.length)-1]:null;
-  const k=JSON.stringify([sl?st.step:0,S.last,S.name,[1,2,3,4,5].map(n=>S['c'+n]||0)]);
+  const cnt=Object.keys(LOGBOOK).map(c=>lbNotes(c).length);
+  const k=JSON.stringify([sl?st.step:0,S.last,S.name,[1,2,3,4,5].map(n=>S['c'+n]||0),hub.tab,hub.open,cnt,S.lbn]);
   if(hub.scan||k===hub.k)return;hub.k=k;
-  const im=a=>a.map(i=>`<img src="assets/${i}.png" alt="" onerror="this.style.display='none'">`).join('');
   const items=[1,2,3,4,5].map(n=>`<div class="item ${S['c'+n]?'':'lock'}"><img src="assets/${S['c'+n]?ITEMS[n][0]:'ui_file_locked'}.png" alt="" onerror="this.style.visibility='hidden'"><small>${S['c'+n]?ITEMS[n][1]:'???'}</small></div>`).join('');
-  const bd=Object.keys(CAST).map(c=>{let st='',n0=0;for(let n=1;n<=5;n++)if(S['c'+n]&&BOARD[n][c]){st=BOARD[n][c];n0=n;}
+  const bd=Object.keys(CAST).map(c=>{let st='';for(let n=1;n<=5;n++)if(S['c'+n]&&BOARD[n][c])st=BOARD[n][c];
    return st?`<div class="pc ${st.startsWith('MASTER')?'bad':''}"><img src="assets/char_${c}.png" alt="" onerror="this.style.visibility='hidden'"><b>${CAST[c]}</b><small>${st}</small></div>`:`<div class="pc lock"><img src="assets/ui_file_locked.png" alt="" onerror="this.style.visibility='hidden'"><b>???</b><small>Not met yet</small></div>`;}).join('');
-  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="card"><h2>${sl.h}</h2><div class="simg">${im(sl.img)}</div><p>${sl.t}</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div><h3>Case Board</h3><div class="board">${bd}</div>${S.c5?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();};
+  const newTot=Object.keys(LOGBOOK).reduce((t,c)=>t+Math.max(0,lbNotes(c).length-(S.lbn[c]||0)),0);
+  const tabs=`<div class="tabs" role="tablist"><button class="tab${hub.tab==='board'?' on':''}" data-t="board">Case Board</button><button class="tab${hub.tab==='log'?' on':''}" data-t="log">Case Log Book${newTot?` <span class="nw">${newTot}</span>`:''}</button></div>`;
+  const body=hub.tab==='log'?lbHTML():`<div class="board">${bd}</div>`;
+  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="vnwrap">${vnHTML(sl,S.name,Math.min(st.step,INTRO.length),INTRO.length)}<p class="vnnote">Your teacher controls the story. Wait for the next slide.</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div>${tabs}${body}${S.c5?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{hub.tab=b.dataset.t;hub.k='';draw(hub.last||{});});
+  document.querySelectorAll('.lbh').forEach(b=>b.onclick=()=>{const c=b.dataset.c;hub.open=hub.open===c?null:c;if(hub.open){S.lbn[c]=lbNotes(c).length;save();}hub.k='';draw(hub.last||{});});
+ };
  const poll=async()=>{try{const r=await fetch(GAS+'?action=state');hub.last=await r.json();}catch(e){}draw(hub.last||{});};
  poll();setInterval(poll,4000);
 }
@@ -129,7 +150,7 @@ function npc(k){
 function talk(k,node,first){
  const v=SIDES[k];if(first)log('location_open','',k);
  if(node==='end'){log('location_leave','',k);$('#panel').innerHTML='<a class="btn" href="join.html" style="display:inline-block;text-decoration:none">Back to my file</a>';return;}
- const n=v.n[node];log('dialogue_view','',`${k}/${node}`);
+ const n=v.n[node];log('dialogue_view','',`${k}/${node}`);if(/^[abc]$/.test(node)){S.heard[k+'/'+node]=1;save();}
  $('#panel').innerHTML=`<div class="bubble"><img class="face" src="assets/${v.img}.png" alt="" onerror="this.style.visibility='hidden'"><div class="txt"><b>${v.name}</b><small>${v.place}</small><br>"${n.t}"</div></div>${n.o.map((o,i)=>`<button class="opt" data-n="${o[1]}" data-i="${i}">${o[1]==='end'?'\uD83D\uDEB6 ':'\uD83D\uDDE3\uFE0F '}${o[0]}</button>`).join('')}<button class="opt" data-n="end">\uD83D\uDEB6 Leave conversation</button>`;
  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{log('dialogue_choice','',`${k}/${node} -> ${b.dataset.n}`);talk(k,b.dataset.n);});
  $('#panel').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -154,6 +175,7 @@ const who=n=>`<div class="who"><b>People in this report</b>${PEOPLE[n].map(c=>`<
 const articleHTML=n=>{const d=NEWS[n];return `<div class="newswrap"><img class="newshead" src="assets/news_head.png" alt="AMATS City Scandal"><div class="newsbody"><div class="newsbar"><span>${d.paper}</span><span>${d.sub}</span></div><h2>${d.head}</h2>${d.body.map(s=>`<h4>${s[0]}</h4>${s.slice(1).map(p=>`<p>${p}</p>`).join('')}`).join('')}</div></div>`;};
 
 function paper(n){ // read -> quiz -> (fail: read again | pass: essay) -> done
+ S.seen['s'+n]=1;save();
  if(S['c'+n])return done(n);
  if(S.qp[n])return essay(n);
  if(S.qz[n])return quiz(n);
@@ -197,6 +219,6 @@ const page=document.body.dataset.page, sn=Number(document.body.dataset.stage);
 function boot(){gate(()=>page==='hub'?hub():page==='npc'?npc(document.body.dataset.npc):stage(sn));flush();}
 if(page!=='stage'||typeof QBANK!=='undefined')boot();
 else{ // older stage pages may not load questions.js, so load it here
- const sc=document.createElement('script');sc.src='questions.js?v=3';sc.onload=boot;
+ const sc=document.createElement('script');sc.src='questions.js?v=5';sc.onload=boot;
  sc.onerror=()=>{app.innerHTML='<div class="wrap"><div class="card"><h3>questions.js not found</h3><p>Put questions.js in the same folder as game.js and the stage pages, then reload this page.</p></div></div>';};
  document.head.appendChild(sc);}
