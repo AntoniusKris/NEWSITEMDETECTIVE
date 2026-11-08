@@ -7,3 +7,12 @@ const INTRO=[
 {h:'The City Is Talking',img:['obj_luxury_jet_photo','obj_money_stack'],t:'Rumours spread fast. The Mayor\'s secretary posts photos from a private jet. A new cafe reports impossible profits. The road projects are stuck. Who can the city trust?'},
 {h:'The People Involved',img:['char_johnson','char_angela','char_alpha','char_valir','char_popol','char_kupa'],t:'Mayor Johnson. Angela, his secretary. Mr. Alpha, the opposition leader. Mr. Valir, the cafe owner. And Popol and Kupa, the Mayor\'s loyal defenders. Everyone has a story. Not every story is true.'},
 {h:'Your Mission',img:['char_player','char_ray'],t:'You are a detective. Scan the QR codes to open each station, read the news item, and separate facts from opinions. Question the witnesses. Earn the codes. Find who really took the money.'}];
+/* characters: names, who appears in each report, and the case board (status after finishing a stage) */
+const CAST={johnson:'Mayor Johnson',angela:'Angela',alpha:'Mr. Alpha',valir:'Mr. Valir',popol:'Popol',kupa:'Kupa',ray:'Chief Inspector Ray'};
+const PEOPLE={1:['johnson','alpha','popol','kupa'],2:['angela','johnson'],3:['valir'],4:['alpha','johnson'],5:['ray','popol','kupa']};
+const BOARD={
+1:{johnson:'Accused, but says he is innocent',alpha:'Accuses the Mayor',popol:'Defends the Mayor loudly',kupa:'Defends the Mayor loudly'},
+2:{angela:'Cleared: her trip was paid from her late mother\u2019s inheritance'},
+3:{valir:'Profits look suspicious, but nothing links them to the Rp 50 billion'},
+4:{alpha:'Has a personal grudge against the Mayor',johnson:'Technical managers sign the payments, not the Mayor'},
+5:{popol:'MASTERMIND: shell company and dummy invoices',kupa:'MASTERMIND: shell company and dummy invoices',ray:'Announced the real culprits'}};

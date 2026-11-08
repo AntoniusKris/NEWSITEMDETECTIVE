@@ -197,6 +197,6 @@ const page=document.body.dataset.page, sn=Number(document.body.dataset.stage);
 function boot(){gate(()=>page==='hub'?hub():page==='npc'?npc(document.body.dataset.npc):stage(sn));flush();}
 if(page!=='stage'||typeof QBANK!=='undefined')boot();
 else{ // older stage pages may not load questions.js, so load it here
- const sc=document.createElement('script');sc.src='questions.js';sc.onload=boot;
+ const sc=document.createElement('script');sc.src='questions.js?v=3';sc.onload=boot;
  sc.onerror=()=>{app.innerHTML='<div class="wrap"><div class="card"><h3>questions.js not found</h3><p>Put questions.js in the same folder as game.js and the stage pages, then reload this page.</p></div></div>';};
  document.head.appendChild(sc);}
