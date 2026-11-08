@@ -81,12 +81,42 @@ addEventListener('online',flush);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const bar=()=>`<div class="bar"><span class="typed">AMATS CASE FILE \u00b7 Detective ${esc(S.name)}</span><span><a href="join.html" style="color:var(--amber)">My file</a> <button id="chg">Not you?</button></span></div>`;
-function wireBar(){const b=$('#chg');if(b)b.onclick=()=>{log('logout');S.name='';save();location.reload();};}
+function wireBar(){const b=$('#chg');if(b)b.onclick=()=>{log('logout');S.name='';S.av=null;save();location.reload();};}
+
+/* ---- detective avatar: head + torso + bottom pieces (assets/hf1.png ... bm5.png). The choice is saved to the Sheet as event avatar_set ---- */
+var AVURL='';
+const AVC={W:442,H:1230,f:{b:[10.41,48.37,89.59,51.63],t:[0,19.11,98.19,42.36],h:[6.56,0,92.31,36.5]}};
+AVC.m=AVC.f; // replace with the male numbers once the male pieces are aligned
+const avId=(p,a)=>p+a.g+a[p],avCode=a=>(a.g==='f'?'female: ':'male: ')+['h','t','b'].map(p=>avId(p,a)).join(' ');
+const avImg={},avLoad=s=>avImg[s]||(avImg[s]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=s;}));
+let avTok=0;
+async function avDraw(cv,a,w){
+ const t=cv._t=++avTok,h=Math.round(w*AVC.H/AVC.W),P=AVC[a.g],ps=['b','t','h'];
+ const ims=await Promise.all(ps.map(p=>avLoad('assets/'+avId(p,a)+'.png')));
+ if(cv._t!==t)return 0;
+ cv.width=w;cv.height=h;const c=cv.getContext('2d');c.imageSmoothingQuality='high';let ok=0;
+ ps.forEach((p,i)=>{if(!ims[i])return;ok++;const q=P[p];c.drawImage(ims[i],q[0]/100*w,q[1]/100*h,q[2]/100*w,q[3]/100*h);});
+ return ok;}
+async function avWarm(){if(!S.av)return;const cv=document.createElement('canvas');const ok=await avDraw(cv,S.av,300);AVURL=ok?cv.toDataURL():'';if(hub.redraw)hub.redraw();}
+document.head.insertAdjacentHTML('beforeend',`<style>.avc h2{margin:0 0 6px}.avg{display:flex;gap:8px;margin:8px 0}.avg button{flex:1;padding:10px;border:2px solid var(--teal,#6aa39d);background:transparent;color:inherit;border-radius:6px;font:inherit;cursor:pointer}.avg button.on{background:var(--teal,#6aa39d);color:#08111f;font-weight:700}.avm{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;justify-content:center;margin-bottom:10px}.avm canvas{width:150px;height:auto;background:#0004;border:2px solid var(--amber,#e0c98a);border-radius:6px}.avo{flex:1 1 220px}.avo b{display:block;margin:8px 0 4px;font-size:14px}.avr{display:flex;gap:6px;flex-wrap:wrap}.avt{width:52px;height:52px;padding:2px;border:2px solid #2c4357;border-radius:6px;background:#0006;cursor:pointer}.avt.on{border-color:var(--amber,#e0c98a);box-shadow:0 0 0 2px var(--amber,#e0c98a)}.avt img{width:100%;height:100%;object-fit:contain}</style>`);
+function avCreate(done){
+ hub.creating=true;
+ const a=Object.assign({g:'f',h:1,t:1,b:1},S.av||{}),N=['Head','Body','Bottom'],P=['h','t','b'];
+ app.innerHTML=`<div class="wrap"><div class="card avc"><h2>Create your detective</h2><p>Choose how Detective ${esc(S.name)} looks.</p><div class="avg"><button data-g="f">Female</button><button data-g="m">Male</button></div><div class="avm"><canvas id="avp" width="300" height="835"></canvas><div class="avo" id="avo"></div></div><button class="btn" id="avok">This is me</button> <button class="btn alt" id="avr">Surprise me</button></div></div>`;
+ const paint=()=>{
+  document.querySelectorAll('.avg button').forEach(b=>b.classList.toggle('on',b.dataset.g===a.g));
+  $('#avo').innerHTML=P.map((p,i)=>`<b>${N[i]}</b><div class="avr">${[1,2,3,4,5].map(n=>`<button class="avt${a[p]===n?' on':''}" data-p="${p}" data-n="${n}" aria-label="${N[i]} ${n}"><img src="assets/${p}${a.g}${n}.png" alt="" onerror="this.style.visibility='hidden'"></button>`).join('')}</div>`).join('');
+  avDraw($('#avp'),a,300);};
+ document.querySelectorAll('.avg button').forEach(b=>b.onclick=()=>{a.g=b.dataset.g;paint();});
+ $('#avo').onclick=e=>{const b=e.target.closest('.avt');if(!b)return;a[b.dataset.p]=+b.dataset.n;paint();};
+ $('#avr').onclick=()=>{P.forEach(p=>a[p]=1+Math.floor(Math.random()*5));paint();};
+ $('#avok').onclick=()=>{S.av={g:a.g,h:a.h,t:a.t,b:a.b};save();log('avatar_set','',avCode(S.av));hub.creating=false;avWarm();done();};
+ paint();}
 
 function gate(cb){
- if(S.name){log('session_start',document.body.dataset.stage||'',document.body.dataset.page);return cb();}
+ if(S.name){log('session_start',document.body.dataset.stage||'',document.body.dataset.page);if(S.av){avWarm();return cb();}return avCreate(cb);}
  app.innerHTML=`<div class="wrap"><div class="card"><h1>AMATS City Scandal</h1><p>Rp 50 billion has vanished from the city treasury. Sign the case file with your name to start investigating.</p><label for="nm">Your full name</label><input id="nm" autocomplete="name" maxlength="40"><button class="btn" id="go">Start investigation</button><div id="e" class="msg" hidden>Enter your name to continue.</div></div></div>`;
- const go=()=>{const v=$('#nm').value.trim();if(!v){$('#e').hidden=false;return;}S.name=v;save();log('login');cb();};
+ const go=()=>{const v=$('#nm').value.trim();if(!v){$('#e').hidden=false;return;}S.name=v;save();log('login');avCreate(cb);};
  $('#go').onclick=go;$('#nm').onkeydown=e=>{if(e.key==='Enter')go();};
 }
 
@@ -110,19 +140,20 @@ function hub(){
  const draw=st=>{
   const sl=st.phase==='intro'&&st.step>0?INTRO[Math.min(st.step,INTRO.length)-1]:null;
   const cnt=Object.keys(LOGBOOK).map(c=>lbNotes(c).length);
-  const k=JSON.stringify([sl?st.step:0,S.last,S.name,[1,2,3,4,5].map(n=>S['c'+n]||0),hub.tab,hub.open,cnt,S.lbn]);
-  if(hub.scan||k===hub.k)return;hub.k=k;
+  const k=JSON.stringify([sl?st.step:0,S.last,S.name,S.av,AVURL.length,[1,2,3,4,5].map(n=>S['c'+n]||0),hub.tab,hub.open,cnt,S.lbn]);
+  if(hub.scan||hub.creating||k===hub.k)return;hub.k=k;
   const items=[1,2,3,4,5].map(n=>`<div class="item ${S['c'+n]?'':'lock'}"><img src="assets/${S['c'+n]?ITEMS[n][0]:'ui_file_locked'}.png" alt="" onerror="this.style.visibility='hidden'"><small>${S['c'+n]?ITEMS[n][1]:'???'}</small></div>`).join('');
   const bd=Object.keys(CAST).map(c=>{let st='';for(let n=1;n<=5;n++)if(S['c'+n]&&BOARD[n][c])st=BOARD[n][c];
    return st?`<div class="pc ${st.startsWith('MASTER')?'bad':''}"><img src="assets/char_${c}.png" alt="" onerror="this.style.visibility='hidden'"><b>${CAST[c]}</b><small>${st}</small></div>`:`<div class="pc lock"><img src="assets/ui_file_locked.png" alt="" onerror="this.style.visibility='hidden'"><b>???</b><small>Not met yet</small></div>`;}).join('');
   const newTot=Object.keys(LOGBOOK).reduce((t,c)=>t+Math.max(0,lbNotes(c).length-(S.lbn[c]||0)),0);
   const tabs=`<div class="tabs" role="tablist"><button class="tab${hub.tab==='board'?' on':''}" data-t="board">Case Board</button><button class="tab${hub.tab==='log'?' on':''}" data-t="log">Case Log Book${newTot?` <span class="nw">${newTot}</span>`:''}</button></div>`;
   const body=hub.tab==='log'?lbHTML():`<div class="board">${bd}</div>`;
-  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="vnwrap">${vnHTML(sl,S.name,Math.min(st.step,INTRO.length),INTRO.length)}<p class="vnnote">Your teacher controls the story. Wait for the next slide.</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div>${tabs}${body}${S.c5?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();
+  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="vnwrap">${vnHTML(sl,S.name,Math.min(st.step,INTRO.length),INTRO.length)}<p class="vnnote">Your teacher controls the story. Wait for the next slide.</p></div>`:`<div class="card idle"><img class="av" src="${AVURL||'assets/char_player.png'}" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button> <button class="btn alt" id="chav">Change look</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div>${tabs}${body}${S.c5?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();{const c=$('#chav');if(c)c.onclick=()=>avCreate(()=>{hub.k='';draw(hub.last||{});});}
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{hub.tab=b.dataset.t;hub.k='';draw(hub.last||{});});
   document.querySelectorAll('.lbh').forEach(b=>b.onclick=()=>{const c=b.dataset.c;hub.open=hub.open===c?null:c;if(hub.open){S.lbn[c]=lbNotes(c).length;save();}hub.k='';draw(hub.last||{});});
  };
  const poll=async()=>{try{const r=await fetch(GAS+'?action=state');hub.last=await r.json();}catch(e){}draw(hub.last||{});};
+ hub.redraw=()=>{hub.k='';draw(hub.last||{});};
  poll();setInterval(poll,4000);
 }
 function wireScan(){

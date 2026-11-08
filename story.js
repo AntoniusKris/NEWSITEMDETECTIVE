@@ -26,7 +26,7 @@ const INTRO=SCENES.map(s=>({...s,h:s.n||'Amats City',img:[s.bg].concat(s.c.map(x
 function vnHTML(s,name,i,total){
  const e=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
  const det=name?', Detective '+e(name):'',f=x=>x.replace(/\{det\}/g,det);
- const spr=s.c.map(x=>`<img class="vn-spr ${x[1]}" src="assets/char_${x[0]}.png" alt="" onerror="this.style.display='none'">`).join('');
+ const spr=s.c.map(x=>`<img class="vn-spr ${x[1]}" src="${x[0]==='player'&&typeof AVURL==='string'&&AVURL?AVURL:'assets/char_'+x[0]+'.png'}" alt="" onerror="this.style.display='none'">`).join('');
  const ls=(s.l||[]).map(x=>`<p class="vn-l"><span class="tg tg-${x[0]}">${TAG[x[0]]}</span> ${f(x[1])}</p>`).join('');
  return `<div class="vn${s.l?'':' ov'}"><div class="vn-scene" style="background-image:url(assets/${s.bg}.png)">${spr}${total?`<span class="vn-step">${i} / ${total}</span>`:''}</div><div class="vn-box">${s.n?`<div class="vn-who"><b>${f(s.n)}</b>${s.r?` <em>${s.r}</em>`:''}</div>`:''}<p class="vn-d">${f(s.d)}</p>${(s.q||[]).map(q=>`<p class="vn-q">${f(q)}</p>`).join('')}${ls}</div></div>`;
 }
