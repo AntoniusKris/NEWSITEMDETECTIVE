@@ -100,7 +100,9 @@ function hub(){
   if(hub.scan||k===hub.k)return;hub.k=k;
   const im=a=>a.map(i=>`<img src="assets/${i}.png" alt="" onerror="this.style.display='none'">`).join('');
   const items=[1,2,3,4,5].map(n=>`<div class="item ${S['c'+n]?'':'lock'}"><img src="assets/${S['c'+n]?ITEMS[n][0]:'ui_file_locked'}.png" alt="" onerror="this.style.visibility='hidden'"><small>${S['c'+n]?ITEMS[n][1]:'???'}</small></div>`).join('');
-  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="card"><h2>${sl.h}</h2><div class="simg">${im(sl.img)}</div><p>${sl.t}</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div></div>`)+`</div></div>`;wireBar();wireScan();};
+  const bd=Object.keys(CAST).map(c=>{let st='',n0=0;for(let n=1;n<=5;n++)if(S['c'+n]&&BOARD[n][c]){st=BOARD[n][c];n0=n;}
+   return st?`<div class="pc ${st.startsWith('MASTER')?'bad':''}"><img src="assets/char_${c}.png" alt="" onerror="this.style.visibility='hidden'"><b>${CAST[c]}</b><small>${st}</small></div>`:`<div class="pc lock"><img src="assets/ui_file_locked.png" alt="" onerror="this.style.visibility='hidden'"><b>???</b><small>Not met yet</small></div>`;}).join('');
+  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="card"><h2>${sl.h}</h2><div class="simg">${im(sl.img)}</div><p>${sl.t}</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div><h3>Case Board</h3><div class="board">${bd}</div>${S.c5?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();};
  const poll=async()=>{try{const r=await fetch(GAS+'?action=state');hub.last=await r.json();}catch(e){}draw(hub.last||{});};
  poll();setInterval(poll,4000);
 }
@@ -148,6 +150,7 @@ function codeGate(n){
 const MIN_WORDS=8,SET=10,PASS=7;
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 S.qz=S.qz||{};S.qa=S.qa||{};S.qp=S.qp||{};
+const who=n=>`<div class="who"><b>People in this report</b>${PEOPLE[n].map(c=>`<span><img src="assets/char_${c}.png" alt="" onerror="this.style.visibility='hidden'">${CAST[c]}</span>`).join('')}</div>`;
 const articleHTML=n=>{const d=NEWS[n];return `<div class="newswrap"><img class="newshead" src="assets/news_head.png" alt="AMATS City Scandal"><div class="newsbody"><div class="newsbar"><span>${d.paper}</span><span>${d.sub}</span></div><h2>${d.head}</h2>${d.body.map(s=>`<h4>${s[0]}</h4>${s.slice(1).map(p=>`<p>${p}</p>`).join('')}`).join('')}</div></div>`;};
 
 function paper(n){ // read -> quiz -> (fail: read again | pass: essay) -> done
@@ -157,7 +160,7 @@ function paper(n){ // read -> quiz -> (fail: read again | pass: essay) -> done
  read(n);
 }
 function read(n,msg){
- app.innerHTML=bar()+`<div class="wrap">${msg?`<div class="msg">${msg}</div>`:''}${articleHTML(n)}<div class="card"><p>Read the news item carefully. The quiz has ${SET} questions and the article is hidden while you answer.</p><button class="btn" id="st">Start quiz</button></div></div>`;wireBar();
+ app.innerHTML=bar()+`<div class="wrap">${msg?`<div class="msg">${msg}</div>`:''}${who(n)}${articleHTML(n)}<div class="card"><p>Read the news item carefully. The quiz has ${SET} questions and the article is hidden while you answer.</p><button class="btn" id="st">Start quiz</button></div></div>`;wireBar();
  $('#st').onclick=()=>{
   const ids=shuffle([...QBANK[n].keys()]).slice(0,SET);S.qa[n]=(S.qa[n]||0)+1;
   S.qz[n]={set:ids.map(q=>({q,o:shuffle([0,1,2,3])})),ans:[]};save();

@@ -23,4 +23,17 @@ P.forEach(([f,l,x,y,t])=>{
  d.innerHTML='<div class="c"></div>'+l;m.appendChild(d);
  try{new QRCode(d.firstChild,{text:BASE+f,width:256,height:256,correctLevel:QRCode.CorrectLevel.M});}catch(e){d.firstChild.textContent='QR library not loaded';}
  u.insertAdjacentHTML('beforeend','<li>'+l+' &rarr; '+BASE+f+'</li>');});
+
+function relax(){
+ const M=m.getBoundingClientRect(),g=M.width*.012;
+ const pos=[...m.querySelectorAll('.q')].map(e=>{const r=e.getBoundingClientRect();return{e,x:r.x-M.x+r.width/2,y:r.y-M.y+r.height/2,w:r.width,h:r.height};});
+ for(let it=0;it<500;it++){let mv=false;
+  for(let i=0;i<pos.length;i++)for(let j=i+1;j<pos.length;j++){const a=pos[i],b=pos[j];
+   const ox=(a.w+b.w)/2+g-Math.abs(a.x-b.x),oy=(a.h+b.h)/2+g-Math.abs(a.y-b.y);
+   if(ox>0&&oy>0){mv=true;if(ox<oy){const s=a.x<b.x?-1:1;a.x+=s*ox/2;b.x-=s*ox/2;}else{const s=a.y<b.y?-1:1;a.y+=s*oy/2;b.y-=s*oy/2;}}}
+  pos.forEach(p=>{p.x=Math.min(M.width-p.w/2-g,Math.max(p.w/2+g,p.x));p.y=Math.min(M.height-p.h/2-g,Math.max(p.h/2+g,p.y));});
+  if(!mv)break;}
+ pos.forEach(p=>{p.e.style.left=p.x/M.width*100+'%';p.e.style.top=p.y/M.height*100+'%';});
+}
+addEventListener('load',()=>setTimeout(relax,200));
 </script></body></html>
