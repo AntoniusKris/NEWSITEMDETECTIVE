@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AMATS Map Poster (print this)</title>
+<style>
+@page{size:A3 landscape;margin:8mm}
+body{margin:0;background:#1a1b22;color:#e8e4d8;font:16px system-ui,sans-serif}
+.tools{padding:10px 16px;background:#050a1e}.tools button{padding:8px 16px;font:inherit;cursor:pointer}
+.map{position:relative;aspect-ratio:4/3;max-width:1400px;margin:10px auto;container-type:inline-size;background:url(assets/city_map.png) center/cover,linear-gradient(135deg,#1d3a4a,#2b4f3f 55%,#3a3a2a);border:3px solid #e0c98a}
+.q{position:absolute;transform:translate(-50%,-50%);width:12cqw;background:#fff;color:#111;padding:.6cqw;text-align:center;border:.3cqw solid #050a1e;border-radius:.6cqw;font:700 1.25cqw/1.2 system-ui,sans-serif}
+.q.s{border-color:#a8404f}.q.n{border-color:#2c6b66}
+.q .c img,.q .c canvas{width:100%!important;height:auto!important;display:block}
+ul{max-width:1400px;margin:0 auto 20px;padding:0 20px;font-size:13px;columns:2}
+@media print{body{background:#fff;color:#000}.tools,ul{display:none}.map{margin:0;max-width:none}}
+</style></head><body>
+<div class="tools"><button onclick="print()">Print poster (A3 landscape)</button> Red border = Station, teal border = Witness. Each QR sits on its place on the map.</div>
+<div class="map" id="m"></div><ul id="u"></ul>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const BASE='https://antoniuskris.github.io/NEWSITEMDETECTIVE/';
+const P=[
+['stage1.html','Station 1: Bank Lobby',48,52,'s'],['stage2.html','Station 2: Secretary\u2019s Office',30,30,'s'],['stage3.html','Station 3: Inferno Coffee',62,38,'s'],['stage4.html','Station 4: Statements & Archive',75,22,'s'],['stage5.html','Station 5: Final Archive',85,55,'s'],
+['npc-warung.html','Witness: Warung',24,70,'n'],['npc-cafe.html','Witness: Cafe',12,44,'n'],['npc-store.html','Witness: Store',38,82,'n'],['npc-transport.html','Witness: Bus Stop',80,74,'n']];
+P.forEach(([f,l,x,y,t])=>{
+ const d=document.createElement('div');d.className='q '+t;d.style.left=x+'%';d.style.top=y+'%';
+ d.innerHTML='<div class="c"></div>'+l;m.appendChild(d);
+ try{new QRCode(d.firstChild,{text:BASE+f,width:256,height:256,correctLevel:QRCode.CorrectLevel.M});}catch(e){d.firstChild.textContent='QR library not loaded';}
+ u.insertAdjacentHTML('beforeend','<li>'+l+' &rarr; '+BASE+f+'</li>');});
+</script></body></html>
