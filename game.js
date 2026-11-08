@@ -1,5 +1,5 @@
 /* AMATS City Scandal - shared game engine */
-const CONFIG={GAS_URL:GAS}; // Apps Script /exec URL
+const CONFIG={'GAS_URL:GAS'}; // Apps Script /exec URL
 
 // Codes a student receives after finishing stage N-1 (key = stage being unlocked; 6 = final dossier)
 const POOLS={
@@ -44,7 +44,7 @@ warung:{x:24,y:70,icon:'\uD83C\uDF5C',name:'Mang Udin (Warung Owner)',place:'Dis
 cafe:{x:12,y:44,icon:'\u2615',name:'Dewi (Barista, Inferno Coffee)',place:'Central Commercial District',img:'npc_cafe_barista',
  n:{start:{t:'Business is booming on paper, but honestly? Most tables are empty. Mr. Valir says it is all thanks to his coffee blends.',o:[['Does he mention the city treasury?','a'],['Who handles the receipts?','b']]},
  a:{t:'Never. He only talks about his restaurants overseas. Nothing about the city.',o:[['Thank you.','end']]},b:{t:'Mr. Valir does, personally. The tax officers come often to check the ledgers.',o:[['Thank you.','end']]}}},
-store:{x:38,y:82,icon:'\uD83C\uDFEA',name:'Bu Rina (Small Store Owner)',place:'Market Lane',img:'npc_store_owner',
+store:{x:38,y:82,icon:'\uD83C\uDFEA',name:'Pak Jaya (Small Store Owner)',place:'Market Lane',img:'npc_store_owner',
  n:{start:{t:'Public works men buy cigarettes here. Funny thing, a company called Kupa Jaya Supplies is supposed to deliver materials, but I have never seen one truck.',o:[['Never seen any delivery?','a'],['Where is their office?','b']]},
  a:{t:'Not once. Yet the road projects keep "buying materials". Strange, no?',o:[['Thank you.','end']]},b:{t:'Nobody knows. Only a post box near the industrial zone.',o:[['Thank you.','end']]}}},
 transport:{x:80,y:74,icon:'\uD83D\uDE8C',name:'Pak Joko (Bus Driver)',place:'Central Transit Stop',img:'npc_transport_driver',
