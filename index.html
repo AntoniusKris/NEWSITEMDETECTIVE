@@ -1,22 +1,32 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AMATS City Scandal - Teacher</title>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;700&family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=3"></head>
-<body><div class="term"><div class="term-top"></div><div class="term-body"><div id="app" class="wrap tv"></div></div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="story.js?v=3"></script>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;700&family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css?v=6"></head>
+<body><div class="term"><div class="term-top"></div><div class="term-body"><div id="app" class="wrap tv" style="max-width:980px"></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="story.js?v=6"></script>
 <script>
 const app=document.getElementById('app'),pin=sessionStorage.pin||(sessionStorage.pin=prompt('Teacher PIN')||'');
-let st={phase:'idle',step:0},players=[];
+let st={phase:'idle',step:0},players=[],joinShow=null; // joinShow: null = automatic (shown while idle, hidden during the intro)
 const joinUrl=new URL('join.html',location.href).href;
-app.innerHTML=`<img src="assets/title_logo.png" alt="AMATS City Scandal" style="max-width:100%;max-height:240px" onerror="this.outerHTML='<h1>AMATS City Scandal</h1>'">
+app.innerHTML=`<div id="top"><img src="assets/title_logo.png" alt="AMATS City Scandal" style="max-width:100%;max-height:240px" onerror="this.outerHTML='<h1>AMATS City Scandal</h1>'">
 <div class="row"><div><p class="big">Scan to join</p><div id="qr"></div><p><small>${joinUrl}</small></p></div>
-<div style="flex:1;min-width:280px"><p class="big">Detectives joined: <b id="cnt">0</b></p><div class="pl" id="pl"></div></div></div>
-<div class="card" id="sl"></div>
-<div><button class="btn alt" id="b0">Back</button> <button class="btn" id="b1">Start / Next</button> <button class="btn alt" id="b2">End intro</button></div>`;
+<div style="flex:1;min-width:280px"><p class="big">Detectives joined: <b id="cnt">0</b></p><div class="pl" id="pl"></div></div></div></div>
+<div id="sl" style="margin:12px 0"></div>
+<div><button class="btn alt" id="b0">Back</button> <button class="btn" id="b1">Start / Next</button> <button class="btn alt" id="b2">End intro</button> <button class="btn alt" id="b3">Join QR</button> <small id="mini"></small></div>
+<p><small>Keyboard: Right arrow or Space = next, Left arrow = back.</small></p>`;
 try{new QRCode(document.getElementById('qr'),{text:joinUrl,width:240,height:240});}catch(e){document.getElementById('qr').textContent='QR library not loaded - use the link below';}
 const post=o=>fetch(GAS,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'set',pin,...o})});
-function draw(){const s=st.step>0?INTRO[st.step-1]:null;document.getElementById('sl').innerHTML=s?`<small>Intro ${st.step} / ${INTRO.length}</small><h2>${s.h}</h2><div class="simg">${s.img.map(i=>`<img src="assets/${i}.png" alt="">`).join('')}</div><p class="big">${s.t}</p>`:'<p class="big">Students are waiting. Press Start when everyone has joined.</p>';
- document.getElementById('cnt').textContent=players.length;document.getElementById('pl').innerHTML=players.map(p=>`<span>${p.replace(/[<>&]/g,'')}</span>`).join('');}
-const set=n=>{n=Math.max(0,Math.min(INTRO.length,n));st={phase:n?'intro':'idle',step:n};post(st);draw();};
+let lastStep=-1;
+function draw(){
+ const s=st.step>0?INTRO[Math.min(st.step,INTRO.length)-1]:null;
+ if(st.step!==lastStep){lastStep=st.step;document.getElementById('sl').innerHTML=s?`<div class="vnwrap">${vnHTML(s,'',st.step,INTRO.length)}</div>`:'<div class="card"><p class="big">Students are waiting. Press Start when everyone has joined.</p></div>';}
+ const show=joinShow===null?!s:joinShow;
+ document.getElementById('top').style.display=show?'':'none';
+ document.getElementById('mini').textContent=show?'':'Detectives joined: '+players.length;
+ document.getElementById('cnt').textContent=players.length;
+ document.getElementById('pl').innerHTML=players.map(p=>`<span>${p.replace(/[<>&]/g,'')}</span>`).join('');}
+const set=n=>{n=Math.max(0,Math.min(INTRO.length,n));if(n===0)joinShow=null;st={phase:n?'intro':'idle',step:n};post(st);draw();};
 b0.onclick=()=>set(st.step-1);b1.onclick=()=>set(st.step+1);b2.onclick=()=>set(0);
+b3.onclick=()=>{const cur=joinShow===null?!(st.step>0):joinShow;joinShow=!cur;draw();};
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();set(st.step+1);}else if(e.key==='ArrowLeft'){e.preventDefault();set(st.step-1);}});
 async function poll(){try{const r=await (await fetch(GAS+'?action=state&p=1')).json();players=r.players||[];st={phase:r.phase,step:r.step};}catch(e){}draw();}
 poll();setInterval(poll,5000);draw();
 </script></body></html>

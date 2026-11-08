@@ -58,7 +58,7 @@ johnson:{role:'Mayor of Amats',notes:[
 {s:'store/c',k:'O',t:'Pak Jaya says: \u201CLook at who signs the paperwork,\u201D not at the faces on the posters.'},
 {s:'s4',k:'F',t:'City archives show that technical supervision and maintenance belong to the field technical division, not the Mayor\u2019s desk.'},
 {s:'s4',k:'C',t:'Former contractors say every budget disbursement must be signed by the technical project manager.'},
-{s:'s5',k:'F',t:'Police say the real masterminds worked behind the Mayor\u2019s back.'}]},
+{s:'s5',k:'C',t:'Chief Inspector Ray says the real masterminds worked behind the Mayor\u2019s back.'}]},
 angela:{role:'Personal secretary to the Mayor',notes:[
 {s:'s2',k:'F',t:'Photos of her luxury holiday on a private jet in Europe spread widely online.'},
 {s:'s2',k:'O',t:'Many residents guessed she paid with stolen city money. This is only speculation.'},
@@ -74,9 +74,9 @@ alpha:{role:'Opposition politician',notes:[
 valir:{role:'Owner of Inferno Coffee',notes:[
 {s:'s3',k:'F',t:'His new upscale cafe is in the central commercial district.'},
 {s:'s3',k:'F',t:'The cafe earned Rp 350 million in one week.'},
-{s:'cafe/a',k:'F',t:'Dewi says the app shows the cafe fully booked every day, but half the tables are empty.'},
-{s:'cafe/b',k:'F',t:'Mr. Valir handles every receipt himself and lets nobody touch the ledger. Some nights, guests use the back door and order nothing. Tax officers visit often.'},
-{s:'cafe/c',k:'F',t:'He talks about restaurants out of town, his \u201Cinvestors\u201D and his \u201Cprivate club\u201D, never about the city.'},
+{s:'cafe/a',k:'C',t:'Dewi says the app shows the cafe fully booked every day, but half the tables are empty.'},
+{s:'cafe/b',k:'C',t:'Dewi says Mr. Valir handles every receipt himself and lets nobody touch the ledger. Some nights, guests use the back door and order nothing. Tax officers visit often.'},
+{s:'cafe/c',k:'C',t:'Dewi says he talks about restaurants out of town, his \u201Cinvestors\u201D and his \u201Cprivate club\u201D, never about the city.'},
 {s:'s3',k:'C',t:'At first, his lawyer said the profits came from special coffee blends and loyal customers. The audit showed this was not true.'},
 {s:'s3',k:'F',t:'Tax auditors announced that the cafe was a front for money laundering.'},
 {s:'s3',k:'F',t:'Much of the cash came from an unlicensed restaurant with a hidden gambling room. Mr. Valir owns it.'},
@@ -95,13 +95,13 @@ ray:{role:'Chief Inspector of Police',notes:[
 {s:'s5',k:'F',t:'He leads the police investigation, which lasted for months.'},
 {s:'s5',k:'C',t:'He says all the physical evidence, forged signatures and digital trails prove the crime beyond doubt.'}]},
 men:{name:'Two men in work vests',role:'A lead from the witnesses',img:'ui_file_locked',hide:true,notes:[
-{s:'warung/b',k:'F',t:'Mang Udin saw two men in work vests carry heavy boxes into the old municipal warehouse late on Tuesday. He did not see their faces.'},
+{s:'warung/b',k:'C',t:'Mang Udin says he saw two men in work vests carry heavy boxes into the old municipal warehouse late on Tuesday. He did not see their faces.'},
 {s:'warung/b',k:'O',t:'Mang Udin thinks they looked nervous, but maybe they were just tired.'},
-{s:'transport/a',k:'F',t:'Pak Joko says two men in work vests ride to the industrial zone every week and whisper to each other.'},
-{s:'transport/b',k:'F',t:'The route ends in the industrial zone: old warehouses and a few post boxes.'},
-{s:'transport/c',k:'F',t:'The men carry heavy bags on the way there and light bags on the way back. Pak Joko does not know what is inside.'},
+{s:'transport/a',k:'C',t:'Pak Joko says two men in work vests ride to the industrial zone every week and whisper to each other.'},
+{s:'transport/b',k:'C',t:'Pak Joko says the route ends in the industrial zone: old warehouses and a few post boxes.'},
+{s:'transport/c',k:'C',t:'Pak Joko says the men carry heavy bags on the way there and light bags on the way back. He does not know what is inside.'},
 {s:'s5',k:'F',t:'The hidden fake receipts were found in an abandoned warehouse near the industrial zone, the same area the witnesses talked about.'}]},
 supplier:{name:'The Supplier',role:'Unknown company',img:'ui_file_locked',hide:true,notes:[
-{s:'store/b',k:'F',t:'The papers say a supplier delivers building materials for the roads. Pak Jaya lives on Market Lane and has not seen one truck.'},
-{s:'store/c',k:'F',t:'The projects keep \u201Cbuying materials\u201D, but the potholes are still there.'},
+{s:'store/b',k:'C',t:'The papers say a supplier delivers building materials for the roads. Pak Jaya lives on Market Lane and has not seen one truck.'},
+{s:'store/c',k:'C',t:'Pak Jaya says the projects keep \u201Cbuying materials\u201D, but the potholes are still there.'},
 {s:'s5',k:'F',t:'The supplier was Kupa Jaya Supplies, a shell company that only existed on paper.'}]}};
