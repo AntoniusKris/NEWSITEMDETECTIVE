@@ -37,19 +37,34 @@ body:[['Newsworthy Event','An in-depth, months-long police investigation has fin
 task:'Who are the real masterminds of the Rp 50 billion embezzlement, and what method did they use?',must:[/popol/i,/kupa/i,/shell|invoice|fake|dummy|forg|bogus/i]}};
 
 // Side-location witnesses: node = {t: what they say, o: [[your question, next node]]}; 'end' closes the chat
+const menu=(t,q)=>({t,o:q.map((x,i)=>[x,'abc'[i]])});
+const ans=t=>({t,o:[['Ask something else','m'],['Thank you.','end']]});
 const SIDES={
 warung:{x:24,y:70,icon:'\uD83C\uDF5C',name:'Mang Udin (Warung Owner)',place:'District 3 Street Corner',img:'npc_warung_uncle',
- n:{start:{t:'Detective! I saw Popol and Kupa carrying heavy boxes into the old municipal warehouse late at night last Tuesday. They looked extremely nervous!',o:[['Did you see anyone else with them?','a'],['What was in the boxes?','b']]},
- a:{t:'No one else. Just those two. Not the Mayor, I would have recognized him.',o:[['Thank you.','end']]},b:{t:'Heavy, like paper. Stacks and stacks of it. One box split open and I saw forms, lots of forms.',o:[['Thank you.','end']]}}},
+ n:{start:menu("Ah, Mr. Detective! Welcome, welcome! Sit down, sit down. A hot bowl of noodles first, or are you here to ask questions, hm?",['What have people been saying lately?','Did you see anything strange at night?','What do people say about the Mayor?']),
+ m:menu("Still hungry for answers, Detective? Go on, ask.",['What have people been saying lately?','Did you see anything strange at night?','What do people say about the Mayor?']),
+ a:ans("Everybody has a theory! Some say the Mayor took the money, some say his secretary, some say it was never there at all. Me? I only know noodles."),
+ b:ans("Last Tuesday, very late, I saw two men in work vests carrying heavy boxes into the old municipal warehouse. Too dark to see their faces. They looked nervous, but maybe they were just tired."),
+ c:ans("I think a mayor who lets the roads fall apart must be hiding something! ...But that is only what I think. I have never actually seen him near any warehouse.")}},
 cafe:{x:12,y:44,icon:'\u2615',name:'Dewi (Barista, Inferno Coffee)',place:'Central Commercial District',img:'npc_cafe_barista',
- n:{start:{t:'Business is booming on paper, but honestly? Most tables are empty. Mr. Valir says it is all thanks to his coffee blends.',o:[['Does he mention the city treasury?','a'],['Who handles the receipts?','b']]},
- a:{t:'Never. He only talks about his restaurants overseas. Nothing about the city.',o:[['Thank you.','end']]},b:{t:'Mr. Valir does, personally. The tax officers come often to check the ledgers.',o:[['Thank you.','end']]}}},
+ n:{start:menu("Welcome to Inferno Coffee! Oh, are you the detective everyone is talking about? Can I get you something, or can I help you with something else?",['How is business here?','Who takes care of the money?','Does Mr. Valir ever talk about the city?']),
+ m:menu("Of course! Anything else I can help you with, Detective?",['How is business here?','Who takes care of the money?','Does Mr. Valir ever talk about the city?']),
+ a:ans("The app says we are fully booked every day. But look around, half the tables are empty. Mr. Valir says it is the new coffee blends. I just pour the coffee."),
+ b:ans("Mr. Valir handles every receipt himself. He does not let anyone else touch the ledger. The tax officers visit quite often, though."),
+ c:ans("Never the city. He talks about his restaurants out of town, and about his 'investors'. I do not ask questions. I like my job.")}},
 store:{x:38,y:82,icon:'\uD83C\uDFEA',name:'Pak Jaya (Small Store Owner)',place:'Market Lane',img:'npc_store_owner',
- n:{start:{t:'Public works men buy cigarettes here. Funny thing, a company called Kupa Jaya Supplies is supposed to deliver materials, but I have never seen one truck.',o:[['Never seen any delivery?','a'],['Where is their office?','b']]},
- a:{t:'Not once. Yet the road projects keep "buying materials". Strange, no?',o:[['Thank you.','end']]},b:{t:'Nobody knows. Only a post box near the industrial zone.',o:[['Thank you.','end']]}}},
+ n:{start:menu("Oh! Careful, careful, mind the crates! ...Eh? You are the detective? Well, what do you need? Make it quick, I have customers.",['Who shops here usually?','Have you seen any material deliveries?','Anything odd about the road projects?']),
+ m:menu("Hm? Still here? Fine, one more question. What is it?",['Who shops here usually?','Have you seen any material deliveries?','Anything odd about the road projects?']),
+ a:ans("Public works crews, mostly, and some city hall staff. They buy snacks and they gossip. Oh, they gossip more than they buy."),
+ b:ans("The papers say a supplier is delivering building materials for the roads. I live right on Market Lane and I have not seen one truck. But maybe they use another route. I only sell snacks!"),
+ c:ans("The projects keep 'buying materials', yet the potholes stay. If I were you, I would not look at the faces on the posters. I would look at who signs the paperwork.")}},
 transport:{x:80,y:74,icon:'\uD83D\uDE8C',name:'Pak Joko (Bus Driver)',place:'Central Transit Stop',img:'npc_transport_driver',
- n:{start:{t:'Two men in work vests ride my bus to the industrial zone every week. They always whisper and get off at the old warehouses.',o:[['Do you know their names?','a'],['Did they carry anything?','b']]},
- a:{t:'One calls the other "Popol". The other answers to "Kupa".',o:[['Thank you.','end']]},b:{t:'Always a heavy bag on the way there, an empty one on the way back.',o:[['Thank you.','end']]}}}};
+ n:{start:menu("...You are not a passenger. Detective, right? Hmm. I have a schedule, so ask quickly.",['Do you have regular passengers?','Where does this route end?','Does anyone carry anything unusual?']),
+ m:menu("Still here? Clock is ticking, Detective. What else?",['Do you have regular passengers?','Where does this route end?','Does anyone carry anything unusual?']),
+ a:ans("The same faces. Students, market sellers. And every week, two men in work vests heading to the industrial zone. They whisper to each other. Probably office talk."),
+ b:ans("The industrial zone. Old warehouses, a few post boxes, not much else. Nobody gets off there for fun."),
+ c:ans("Heavy bags on the way there, light bags on the way back. Could be tools. Could be lunch. Do not ask me, I just drive.")}}};
+
 const PINS={1:[48,52],2:[30,30],3:[62,38],4:[75,22],5:[85,55]};
 
 // ---------- state & logging ----------
