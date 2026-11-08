@@ -1,5 +1,5 @@
 /* AMATS City Scandal - shared game engine */
-const CONFIG={'GAS_URL:GAS'}; // Apps Script /exec URL
+const CONFIG={GAS_URL:GAS}; // Apps Script /exec URL
 
 // Codes a student receives after finishing stage N-1 (key = stage being unlocked; 6 = final dossier)
 const POOLS={
@@ -82,12 +82,28 @@ function hub(){
  const draw=st=>{
   const sl=st.phase==='intro'&&st.step>0?INTRO[Math.min(st.step,INTRO.length)-1]:null;
   const k=JSON.stringify([sl?st.step:0,S.last,S.name,[1,2,3,4,5].map(n=>S['c'+n]||0)]);
-  if(k===hub.k)return;hub.k=k;
+  if(hub.scan||k===hub.k)return;hub.k=k;
   const im=a=>a.map(i=>`<img src="assets/${i}.png" alt="" onerror="this.style.display='none'">`).join('');
   const items=[1,2,3,4,5].map(n=>`<div class="item ${S['c'+n]?'':'lock'}"><img src="assets/${S['c'+n]?ITEMS[n][0]:'ui_file_locked'}.png" alt="" onerror="this.style.visibility='hidden'"><small>${S['c'+n]?ITEMS[n][1]:'???'}</small></div>`).join('');
-  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="card"><h2>${sl.h}</h2><div class="simg">${im(sl.img)}</div><p>${sl.t}</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><div class="items">${items}</div></div>`)+`</div></div>`;wireBar();};
+  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="card"><h2>${sl.h}</h2><div class="simg">${im(sl.img)}</div><p>${sl.t}</p></div>`:`<div class="card idle"><img class="av" src="assets/char_player.png" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div></div>`)+`</div></div>`;wireBar();wireScan();};
  const poll=async()=>{try{const r=await fetch(GAS+'?action=state');hub.last=await r.json();}catch(e){}draw(hub.last||{});};
  poll();setInterval(poll,4000);
+}
+function wireScan(){
+ const b=$('#scan');if(!b)return;const m=$('#sm'),x=$('#sx');
+ const say=t=>{m.hidden=!t;m.textContent=t||'';};
+ const stop=async()=>{try{await hub.scan.stop();}catch(e){}hub.scan=null;hub.k='';x.hidden=true;b.hidden=false;};
+ x.onclick=stop;
+ b.onclick=async()=>{say('');
+  try{
+   if(!window.Html5Qrcode)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);});
+   hub.scan=new Html5Qrcode('rd');b.hidden=true;x.hidden=false;
+   await hub.scan.start({facingMode:'environment'},{fps:10,qrbox:220},async t=>{
+    let u;try{u=new URL(t);}catch(e){return;}
+    if(u.origin!==location.origin||!/\/(stage[1-5]|npc-[a-z]+)\.html$/.test(u.pathname)){say('That is not a station or witness QR code. Try another one.');return;}
+    log('scan_open','',u.pathname.split('/').pop());await stop();location.href=u.href;},()=>{});
+  }catch(e){await stop();say('The camera could not start. Allow camera access in your browser and try again.');}
+ };
 }
 function npc(k){
  app.innerHTML=bar()+`<div class="wrap"><img class="banner" src="assets/bg_${k}.png" alt="" onerror="this.style.display='none'"><div id="panel"></div></div>`;wireBar();
