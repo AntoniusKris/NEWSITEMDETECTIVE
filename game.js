@@ -86,6 +86,7 @@ function wireBar(){const b=$('#chg');if(b)b.onclick=()=>{log('logout');S.name=''
 /* ---- detective avatar: head + torso + bottom pieces (assets/hf1.png ... bm5.png). The choice is saved to the Sheet as event avatar_set ---- */
 var AVURL='';
 const AVC={W:442,H:1230,f:{b:[10.41,48.37,89.59,51.63],t:[0,19.11,98.19,42.36],h:[6.56,0,92.31,36.5]}};
+const AVN={f:{h:5,t:5,b:5},m:{h:5,t:5,b:5}}; // HOW MANY OPTIONS EXIST per gender and part. Added hf6.png? set f.h to 6. Added tm7.png? set m.t to 7.
 AVC.m=AVC.f; // male pieces use the same layout as female (decision); give AVC.m its own numbers if male pieces ever need different placement
 const avId=(p,a)=>p+a.g+a[p],avCode=a=>(a.g==='f'?'female: ':'male: ')+['h','t','b'].map(p=>avId(p,a)).join(' ');
 const avImg={},avLoad=s=>avImg[s]||(avImg[s]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=s;}));
@@ -105,11 +106,11 @@ function avCreate(done){
  app.innerHTML=`<div class="wrap"><div class="card avc"><h2>Create your detective</h2><p>Choose how Detective ${esc(S.name)} looks.</p><div class="avg"><button data-g="f">Female</button><button data-g="m">Male</button></div><div class="avm"><canvas id="avp" width="300" height="835"></canvas><div class="avo" id="avo"></div></div><button class="btn" id="avok">This is me</button> <button class="btn alt" id="avr">Surprise me</button></div></div>`;
  const paint=()=>{
   document.querySelectorAll('.avg button').forEach(b=>b.classList.toggle('on',b.dataset.g===a.g));
-  $('#avo').innerHTML=P.map((p,i)=>`<b>${N[i]}</b><div class="avr">${[1,2,3,4,5].map(n=>`<button class="avt${a[p]===n?' on':''}" data-p="${p}" data-n="${n}" aria-label="${N[i]} ${n}"><img src="assets/${p}${a.g}${n}.png" alt="" onerror="this.style.visibility='hidden'"></button>`).join('')}</div>`).join('');
+  $('#avo').innerHTML=P.map((p,i)=>`<b>${N[i]}</b><div class="avr">${Array.from({length:AVN[a.g][p]},(_,k)=>k+1).map(n=>`<button class="avt${a[p]===n?' on':''}" data-p="${p}" data-n="${n}" aria-label="${N[i]} ${n}"><img src="assets/${p}${a.g}${n}.png" alt="" onerror="this.style.visibility='hidden'"></button>`).join('')}</div>`).join('');
   avDraw($('#avp'),a,300);};
- document.querySelectorAll('.avg button').forEach(b=>b.onclick=()=>{a.g=b.dataset.g;paint();});
+ document.querySelectorAll('.avg button').forEach(b=>b.onclick=()=>{a.g=b.dataset.g;P.forEach(p=>a[p]=Math.min(a[p],AVN[a.g][p]));paint();});
  $('#avo').onclick=e=>{const b=e.target.closest('.avt');if(!b)return;a[b.dataset.p]=+b.dataset.n;paint();};
- $('#avr').onclick=()=>{P.forEach(p=>a[p]=1+Math.floor(Math.random()*5));paint();};
+ $('#avr').onclick=()=>{P.forEach(p=>a[p]=1+Math.floor(Math.random()*AVN[a.g][p]));paint();};
  $('#avok').onclick=()=>{S.av={g:a.g,h:a.h,t:a.t,b:a.b};save();log('avatar_set','',avCode(S.av));hub.creating=false;avWarm();done();};
  paint();}
 
