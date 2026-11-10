@@ -86,7 +86,7 @@ function wireBar(){const b=$('#chg');if(b)b.onclick=()=>{log('logout');S.name=''
 /* ---- detective avatar: head + torso + bottom pieces (assets/hf1.png ... bm5.png). The choice is saved to the Sheet as event avatar_set ---- */
 var AVURL='';
 const AVC={W:442,H:1230,f:{b:[10.41,48.37,89.59,51.63],t:[0,19.11,98.19,42.36],h:[6.56,0,92.31,36.5]}};
-const AVN={f:{h:5,t:5,b:5},m:{h:5,t:5,b:5}}; // HOW MANY OPTIONS EXIST per gender and part. Added hf6.png? set f.h to 6. Added tm7.png? set m.t to 7.
+const AVN={f:{h:9,t:9,b:9},m:{h:5,t:5,b:5}}; // HOW MANY OPTIONS EXIST per gender and part. Added hf6.png? set f.h to 6. Added tm7.png? set m.t to 7.
 AVC.m=AVC.f; // male pieces use the same layout as female (decision); give AVC.m its own numbers if male pieces ever need different placement
 const avId=(p,a)=>p+a.g+a[p],avCode=a=>(a.g==='f'?'female: ':'male: ')+['h','t','b'].map(p=>avId(p,a)).join(' ');
 const avImg={},avLoad=s=>avImg[s]||(avImg[s]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=s;}));
