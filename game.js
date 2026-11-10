@@ -148,7 +148,7 @@ function hub(){
   const newTot=Object.keys(LOGBOOK).reduce((t,c)=>t+Math.max(0,lbNotes(c).length-(S.lbn[c]||0)),0);
   const tabs=`<div class="tabs" role="tablist"><button class="tab${hub.tab==='board'?' on':''}" data-t="board">Case Board</button><button class="tab${hub.tab==='log'?' on':''}" data-t="log">Case Log Book${newTot?` <span class="nw">${newTot}</span>`:''}</button></div>`;
   const body=hub.tab==='log'?lbHTML():`<div class="board">${bd}</div>`;
-  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="vnwrap">${vnHTML(sl,S.name,Math.min(st.step,INTRO.length),INTRO.length)}<p class="vnnote">Your teacher controls the story. Wait for the next slide.</p></div>`:`<div class="card idle"><img class="av" src="${AVURL||'assets/char_player.png'}" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button> <button class="btn alt" id="chav">Change look</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div>${tabs}${body}${S.c5?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();{const c=$('#chav');if(c)c.onclick=()=>avCreate(()=>{hub.k='';draw(hub.last||{});});}
+  app.innerHTML=bar()+`<div class="hub" style="background-image:url(assets/${S.last||'city_map'}.png)"><div class="hubin">`+(sl?`<div class="vnwrap">${vnHTML(sl,S.name,Math.min(st.step,INTRO.length),INTRO.length)}<p class="vnnote">Your teacher controls the story. Wait for the next slide.</p></div>`:`<div class="card idle"><img class="av" src="${AVURL||'assets/char_player.png'}" alt="" onerror="this.style.display='none'"><h2>Detective ${esc(S.name)}</h2><p>Waiting for your next lead. Scan a QR code in the classroom.</p><button class="btn" id="scan">Scan QR code</button> <button class="btn alt" id="sx" hidden>Cancel</button> <button class="btn alt" id="chav">Change look</button><div id="rd"></div><div id="sm" class="msg" hidden></div><div class="items">${items}</div>${tabs}${body}${S.fa&&S.fa.r==='win'?'<img class="stamp" src="assets/stamp_case_solved.png" alt="" onerror="this.style.display=\'none\'">':''}</div>`)+`</div></div>`;wireBar();wireScan();{const c=$('#chav');if(c)c.onclick=()=>avCreate(()=>{hub.k='';draw(hub.last||{});});}
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{hub.tab=b.dataset.t;hub.k='';draw(hub.last||{});});
   document.querySelectorAll('.lbh').forEach(b=>b.onclick=()=>{const c=b.dataset.c;hub.open=hub.open===c?null:c;if(hub.open){S.lbn[c]=lbNotes(c).length;save();}hub.k='';draw(hub.last||{});});
  };
@@ -238,7 +238,35 @@ function essay(n){
   log('essay_submit',n,a.slice(0,500));
   S['c'+n]=S['c'+n]||pick(POOLS[n+1]);delete S.qp[n];save();log('stage_complete',n,S['c'+n]);done(n);};
 }
+/* ---- final act: after Stage 5 the student must accuse the culprits. One wrong accusation is allowed, the second wrong one fails the case. ---- */
+const CULPRITS=['popol','kupa'];
+document.head.insertAdjacentHTML('beforeend',`<style>.fag{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin:12px 0}.fag.two{grid-template-columns:repeat(2,minmax(110px,150px));justify-content:center}.fac{background:#0006;border:2px solid #2c4357;border-radius:8px;padding:5px;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}.fac img{width:100%;height:120px;object-fit:cover;object-position:top;border-radius:5px;background:#0004}.fac b{font-size:13px;text-align:center}.fac.on{border-color:var(--amber,#e0c98a);outline:3px solid var(--amber,#e0c98a);box-shadow:0 0 16px 4px var(--amber,#e0c98a)}.fac.cul{cursor:default;border-color:var(--red,#a8404f);outline-color:var(--red,#a8404f);box-shadow:0 0 18px 5px var(--red,#a8404f)}.fac small{color:var(--red,#e06a7a);font-weight:700;letter-spacing:.06em}.fast{width:150px;max-width:50%;display:block;margin:0 auto 6px;transform:rotate(-6deg)}.fa.lose h2{color:var(--red,#e06a7a)}@media (prefers-reduced-motion:no-preference){.fac.cul{animation:faIn .8s both}@keyframes faIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}}</style>`);
+function finalAct(){
+ const f=S.fa=S.fa||{w:0,r:''},sel=new Set();
+ if(f.r==='win')return faWin();
+ if(f.r==='lose')return faLose();
+ const draw=msg=>{
+  app.innerHTML=bar()+`<div class="wrap"><div class="card fa"><h2>The final act</h2><p>Who took the Rp 50 billion?</p>${msg?`<div class="msg">${msg}</div>`:''}<div class="fag">${Object.keys(CAST).map(c=>`<button class="fac${sel.has(c)?' on':''}" data-c="${c}" aria-pressed="${sel.has(c)}"><img src="assets/char_${c}.png" alt="" onerror="this.style.visibility='hidden'"><b>${CAST[c]}</b></button>`).join('')}</div><button class="btn" id="fas">Accuse</button></div></div>`;wireBar();
+  document.querySelectorAll('.fac').forEach(b=>b.onclick=()=>{const c=b.dataset.c;sel.has(c)?sel.delete(c):sel.add(c);b.classList.toggle('on',sel.has(c));b.setAttribute('aria-pressed',sel.has(c));});
+  $('#fas').onclick=()=>{
+   if(!sel.size)return;
+   const pk=[...sel].sort(),ok=pk.join()===[...CULPRITS].sort().join();
+   log('accuse',5,`${pk.join('+')} -> ${ok?'right':'wrong'} (earlier mistakes: ${f.w})`);
+   if(ok){f.r='win';save();log('case_solved',5,S.c5);return faWin();}
+   f.w++;save();
+   if(f.w>=2){f.r='lose';save();log('case_failed',5,'two wrong accusations');return faLose();}
+   sel.clear();draw('Wrong accusation. Think carefully. You cannot afford another mistake.');};
+ };
+ draw('');
+}
+function faWin(){
+ app.innerHTML=bar()+`<div class="wrap"><div class="card fa win"><img class="fast" src="assets/stamp_case_solved.png" alt="Case solved" onerror="this.style.display='none'"><h2>Case solved, Detective ${esc(S.name)}!</h2><div class="fag two">${CULPRITS.map((c,i)=>`<div class="fac cul" style="animation-delay:${i*.6}s"><img src="assets/char_${c}.png" alt="" onerror="this.style.visibility='hidden'"><b>${CAST[c]}</b><small>MASTERMIND</small></div>`).join('')}</div><p>The Mayor\u2019s loudest defenders were behind it all. They used a shell company, Kupa Jaya Supplies, and dummy invoices.</p><p>Show this code to your teacher:</p><div class="code">${S.c5}</div></div></div>`;wireBar();
+}
+function faLose(){
+ app.innerHTML=bar()+`<div class="wrap"><div class="card fa lose"><h2>Case failed!</h2><p>Two wrong accusations. The real culprits slipped away this time.</p></div></div>`;wireBar();
+}
 function done(n){
+ if(n===5)return finalAct();
  const fin=n===5;
  app.innerHTML=bar()+`<div class="wrap"><div class="card"><div class="msg ok">${fin?'Case solved, Detective '+esc(S.name)+'! Show this code to your teacher.':'Station '+n+' complete! Write this code down. You need it to open Station '+(n+1)+'.'}</div><div class="code">${S['c'+n]}</div><a href="join.html" style="color:var(--amber)">Back to my file</a></div></div>`;wireBar();
 }
