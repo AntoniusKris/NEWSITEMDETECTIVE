@@ -138,7 +138,7 @@ const lbHTML=()=>{
 function hub(){
  log('hub_view');hub.tab=hub.tab||'board';
  const draw=st=>{
-  const sl=st.phase==='intro'&&st.step>0?INTRO[Math.min(st.step,INTRO.length)-1]:null;
+  const sl=null; // the intro is shown on the teacher screen only, never on phones
   const cnt=Object.keys(LOGBOOK).map(c=>lbNotes(c).length);
   const k=JSON.stringify([sl?st.step:0,S.last,S.name,S.av,AVURL.length,[1,2,3,4,5].map(n=>S['c'+n]||0),hub.tab,hub.open,cnt,S.lbn]);
   if(hub.scan||hub.creating||k===hub.k)return;hub.k=k;
@@ -152,9 +152,8 @@ function hub(){
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{hub.tab=b.dataset.t;hub.k='';draw(hub.last||{});});
   document.querySelectorAll('.lbh').forEach(b=>b.onclick=()=>{const c=b.dataset.c;hub.open=hub.open===c?null:c;if(hub.open){S.lbn[c]=lbNotes(c).length;save();}hub.k='';draw(hub.last||{});});
  };
- const poll=async()=>{try{const r=await fetch(GAS+'?action=state');hub.last=await r.json();}catch(e){}draw(hub.last||{});};
  hub.redraw=()=>{hub.k='';draw(hub.last||{});};
- poll();setInterval(poll,4000);
+ hub.last={};draw({}); // phones no longer poll the Sheet
 }
 function wireScan(){
  const b=$('#scan');if(!b)return;const m=$('#sm'),x=$('#sx');
